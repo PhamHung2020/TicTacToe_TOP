@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe</title>
+</head>
+<body>
+    <header>
+        <h1>TIC TAC TOE : Can you win our AI?</h1>
+    </header>
+
+    <div class="game">
+        <div class="player-section">
+            <select name="level" id="level">
+                <option value="easy">Easy</option>
+                <option value="medium">Medium</option>
+                <option value="hard">Hard</option>
+            </select>
+
+            <div class="player-choice">
+                <p>Choose you weapon: </p>
+                <div class="choices">
+                    <button id="x">X</button>
+                    <button id="o">O</button>
+                </div>
+            </div>
+
+            <button id="start-restart">Start</button>
+        </div>
+
+        <div class="game-board">
+            <button id="0"></button>
+            <button id="1"></button>
+            <button id="2"></button>
+            <button id="3"></button>
+            <button id="4"></button>
+            <button id="5"></button>
+            <button id="6"></button>
+            <button id="7"></button>
+            <button id="8"></button>
+        </div>
+
+        <h1 id="announce-winner"></h1>
+    </div>
+</body>
+</html>
