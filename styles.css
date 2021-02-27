@@ -19,7 +19,7 @@ header{
 
 .game{
     width: 60%;
-    height: 80vh;
+    height: max-content;
     margin: 50px auto;
     border-radius: 10px;
     box-shadow: 1px 1px 10px gray;
@@ -27,8 +27,7 @@ header{
 }
 
 .player-section{
-    height: 20%;
-    padding-top: 20px;
+    padding: 20px 0;
     background-color: white;
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
@@ -40,7 +39,7 @@ header{
 }
 
 select{
-    width: 30%;
+    width: 45%;
     height: max-content;
     padding: 5px;
     margin-left: 10px;
@@ -53,7 +52,6 @@ select{
 .weapon{
     display: grid;
     grid-template-columns: 1fr 2fr;
-    /* background-color: aqua; */
 }
 
 .choices button{
@@ -79,10 +77,10 @@ select{
 }
 
 .game-board{
-    height: 40%;
     background-color: greenyellow;
-    width: 30%;
-    margin: 10% auto;
+    max-width: 240px;
+    min-height: 240px;
+    margin: 30px auto;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
 }
@@ -91,6 +89,11 @@ select{
     background-color: greenyellow;
     border: 0.5px solid black;
     cursor: pointer;
+    outline: none;
+    font-size: 30px;
+    font-weight: 500;
+    min-height: 80px;
+    max-width: 80px;
 }
 
 #button-0, #button-1, #button-2{
