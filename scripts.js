@@ -94,6 +94,7 @@ const gameBoardView = (function()
     {
         buttons.forEach(button => button.textContent = '');
         for (let i = 0; i < 9; ++i) board[i] = '';
+        count = 0;
     }
 
     function disable(isDisable)
@@ -198,6 +199,7 @@ const game = (
         let playerName = null;
         let computerName = null;
         let level = null;
+        let count = 0;
         const announce = document.getElementById('announce-winner');
         function start()
         {
@@ -212,6 +214,7 @@ const game = (
                 computerName = 'X';
             }
             level = choice_section.getLevel();
+            count = 0;
             choice_section.disable(true);
             gameBoardView.disable(false);
             if (computerName == 'X')
@@ -235,10 +238,16 @@ const game = (
                 end(playerName);
                 return;
             }
-            
+            ++count;
             computerMove();
             if (gameBoardView.checkWin())
+            {
                 end(computerName);
+                return;
+            }
+            ++count;
+            if (count >= 8)
+                end(null);
         }
 
         function computerMove()
@@ -258,7 +267,10 @@ const game = (
 
         function end(winnerName)
         {
-            announce.textContent = 'The winner is ' + winnerName;
+            if (winnerName != null)
+                announce.textContent = 'The winner is ' + winnerName;
+            else
+                announce.textContent = 'Draw!!!';
             gameBoardView.disable(true);
         }
         
