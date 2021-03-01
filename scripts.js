@@ -1,17 +1,38 @@
+const pubSub = (
+    function()
+    {
+        const events = {};
+        function subscribe(eventName, callbackFunc)
+        {
+            if (!events[eventName])
+                events[eventName] = [];
+            events[eventName].push(callbackFunc);
+        }
+        function publish(eventName, data)
+        {
+            if (!events[eventName]) return;
+            events[eventName].forEach(callbackFunc => callbackFunc(data));
+        }
+
+        return { subscribe, publish };
+    }
+)();
+
+
 const Level = {
     easy : "easy",
     medium : "medium",
     hard : "hard"
 }
 
-function player(name)
-{
-    const playerName = name;
-    const getName = () => playerName;
-    return { getName };
-}
+// function player(name)
+// {
+//     const playerName = name;
+//     const getName = () => playerName;
+//     return { getName };
+// }
 
-const gameBoardView = (function gameBoardView() 
+const gameBoardView = (function() 
 {
     const boardView = document.getElementById('game-board');
     const buttons = boardView.childNodes;
@@ -33,7 +54,7 @@ const gameBoardView = (function gameBoardView()
         buttons.forEach(button => {
             button.addEventListener('click', (e) => {
                 const index = +e.target.id[e.target.id.length - 1];
-                setPos(index, choice_section.getPlayerWeapon());
+                pubSub.publish('move', index);
             })
         });
     }
@@ -72,7 +93,7 @@ const gameBoardView = (function gameBoardView()
     function clear()
     {
         buttons.forEach(button => button.textContent = '');
-        board.forEach(item => item = '');
+        for (let i = 0; i < 9; ++i) board[i] = '';
     }
 
     function disable(isDisable)
@@ -109,16 +130,13 @@ const choice_section = (function() {
         buttonStart.addEventListener('click', () => {
             if (buttonStart.textContent == 'Start')
             {
-                disable(true);
                 buttonStart.textContent = 'Restart';
-                gameBoardView.disable(false);
+                pubSub.publish('start', null);
             }
             else
             {
-                disable(false);
                 buttonStart.textContent = 'Start';
-                gameBoardView.clear();
-                gameBoardView.disable(true);
+                pubSub.publish('restart', null);
             }
         });
     }
@@ -139,7 +157,12 @@ const choice_section = (function() {
         return 'O';
     }
 
-    return {init, getPlayerWeapon};
+    function getLevel()
+    {
+        return selectLevel.value;
+    }
+
+    return {init, disable, getPlayerWeapon, getLevel};
 })();
 
 const computer = (
@@ -165,30 +188,91 @@ const computer = (
 
         }
 
-        return { easyMove };
+        return { easyMove, mediumMove, hardMove };
     }
 )();
 
 const game = (
-    function game(humanPlayerName, computerPlayerName)
+    function()
     {
-        const humanPlayer = player(humanPlayerName);
-        const computerPlayer = player(computerPlayerName);
-
+        let playerName = null;
+        let computerName = null;
+        let level = null;
+        const announce = document.getElementById('announce-winner');
         function start()
         {
-            if (computerPlayer.getName() == 'X')
+            if (choice_section.getPlayerWeapon() == 'X')
             {
-                gameBoardView.setPos(computer.easyMove(), 'X');
+                playerName = 'X';
+                computerName = 'O';
             }
-            while (!gameBoardView.checkWin())
+            else
             {
-                
+                playerName = 'O';
+                computerName = 'X';
+            }
+            level = choice_section.getLevel();
+            choice_section.disable(true);
+            gameBoardView.disable(false);
+            if (computerName == 'X')
+                computerMove();    
+            announce.textContent = 'Playing';
+        }
+
+        function restart()
+        {
+            choice_section.disable(false);
+            gameBoardView.clear();
+            gameBoardView.disable(true);
+            announce.textContent = 'Press start to play';
+        }
+
+        function move(index)
+        {
+            gameBoardView.setPos(index, playerName);
+            if (gameBoardView.checkWin())
+            {
+                end(playerName);
+                return;
+            }
+            
+            computerMove();
+            if (gameBoardView.checkWin())
+                end(computerName);
+        }
+
+        function computerMove()
+        {
+            switch (level)
+            {
+                case 'easy':
+                    gameBoardView.setPos(computer.easyMove(gameBoardView), computerName);
+                    break;
+                case 'medium':
+                    gameBoardView.setPos(computer.mediumMove(), computerName);
+                    break;
+                case 'hard': gameBoardView.setPos(computer.hardMove(), computerName);
+                break;
             }
         }
+
+        function end(winnerName)
+        {
+            announce.textContent = 'The winner is ' + winnerName;
+            gameBoardView.disable(true);
+        }
         
+        function subscribe()
+        {
+            pubSub.subscribe('start', function() { start(); });
+            pubSub.subscribe('restart', function() { restart(); });
+            pubSub.subscribe('move', function(index) { move(index); });
+        }
+
+        return {start, restart, subscribe};
     }
 )();
 
 gameBoardView.init();
 choice_section.init();
+game.subscribe();
